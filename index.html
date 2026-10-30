@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FractionHome · Premium Fractional Real Estate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #09090b;
+    --bg-surface: rgba(24, 24, 27, 0.6);
+    --bg-surface-solid: #18181b;
+    --bg-input: rgba(0, 0, 0, 0.4);
+    --border: rgba(63, 63, 70, 0.4);
+    --border-hover: rgba(113, 113, 122, 0.6);
+    --accent: #f43f5e; /* Rose 500 */
+    --accent-hover: #e11d48;
+    --accent-glow: rgba(244, 63, 94, 0.15);
+    --text-main: #f4f4f5;
+    --text-muted: #a1a1aa;
+    --success: #10b981;
+    --success-bg: rgba(16, 185, 129, 0.1);
+    --danger: #ef4444;
+    --danger-bg: rgba(239, 68, 68, 0.1);
+    
+    font-family: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: radial-gradient(circle at top, #1c191c 0%, var(--bg-base) 40%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* --- NAVIGATION --- */
+  nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 32px;
+    background: rgba(9, 9, 11, 0.8);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), #ff7e67);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 18px; color: #fff;
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+  .brand-text { font-size: 18px; font-weight: 600; letter-spacing: -0.5px; }
+
+  .nav-links { display: flex; gap: 24px; align-items: center; }
+  .nav-link { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: color 0.2s; }
+  .nav-link:hover, .nav-link.active { color: var(--text-main); }
+
+  .wallet-ctrl { display: flex; align-items: center; gap: 12px; }
+  .badge {
+    font-size: 12px; padding: 6px 12px; border-radius: 20px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--bg-surface);
+  }
+  .badge.ok { color: var(--success); border-color: rgba(16,185,129,0.3); background: var(--success-bg); }
+  .badge.bad { color: var(--danger); border-color: rgba(239,68,68,0.3); background: var(--danger-bg); }
+
+  /* --- BUTTONS --- */
+  .btn {
+    background: var(--bg-surface-solid); color: var(--text-main);
+    border: 1px solid var(--border); padding: 10px 18px;
+    border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s ease; font-family: inherit;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn.full { width: 100%; padding: 14px; font-size: 14px; }
+  .btn:hover:not(:disabled) { background: #27272a; border-color: var(--border-hover); }
+  .btn.primary {
+    background: var(--accent); color: #fff; border: 1px solid var(--accent);
+    box-shadow: 0 4px 12px var(--accent-glow);
+  }
+  .btn.primary:hover:not(:disabled) {
+    background: var(--accent-hover); border-color: var(--accent-hover);
+    box-shadow: 0 4px 20px rgba(225, 29, 72, 0.4); transform: translateY(-1px);
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* --- PAGE ROUTING SYSTEM --- */
+  .page-view { display: none; flex-direction: column; flex: 1; opacity: 0; animation: fadeIn 0.4s ease forwards; }
+  .page-view.active { display: flex; }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* --- LANDING PAGE (HOME VIEW) --- */
+  #home-view { padding: 80px 32px; align-items: center; }
+  .hero { text-align: center; max-width: 800px; margin: 0 auto; }
+  .hero h1 { font-size: 56px; font-weight: 700; line-height: 1.1; margin-bottom: 24px; letter-spacing: -1px; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { font-size: 18px; color: var(--text-muted); margin-bottom: 40px; line-height: 1.6; }
+  .hero-btns { display: flex; gap: 16px; justify-content: center; }
+  .hero-btns .btn { padding: 14px 28px; font-size: 15px; border-radius: 12px; }
+  
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1100px; width: 100%; margin-top: 80px; }
+  .feature-card { background: var(--bg-surface); border: 1px solid var(--border); padding: 32px; border-radius: 16px; backdrop-filter: blur(10px); text-align: left; }
+  .feature-card h3 { font-size: 20px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+  .feature-card p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+
+  /* --- DASHBOARD (APP VIEW) --- */
+  #app-view { padding: 32px; max-width: 1200px; margin: 0 auto; width: 100%; gap: 40px; }
+
+  /* Metric Cards Row */
+  .stats-header { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+  .metric-card {
+    background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    backdrop-filter: blur(10px); transition: transform 0.2s, border-color 0.2s;
+  }
+  .metric-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+  .metric-card .label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .metric-card .value { font-size: 24px; font-weight: 600; font-family: 'JetBrains Mono', monospace; color: var(--text-main); }
+
+  .section-title { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Action Tiles */
+  .action-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .action-tile {
+    background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; backdrop-filter: blur(10px);
+    cursor: pointer; transition: all 0.2s ease;
+    display: flex; flex-direction: column; align-items: flex-start; text-align: left;
+  }
+  .action-tile:hover {
+    border-color: var(--accent); background: rgba(24, 24, 27, 0.8);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 0 0 1px var(--accent-glow);
+    transform: translateY(-2px);
+  }
+  .action-tile h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .action-tile h3::before { content: '→'; color: var(--accent); font-family: 'JetBrains Mono', monospace; transition: transform 0.2s; }
+  .action-tile:hover h3::before { transform: translateX(4px); }
+  .action-tile .desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+  /* Tokens Panel */
+  .token-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
+  .token-info { display: flex; flex-direction: column; gap: 4px; }
+  .token-info .sym { font-weight: 600; font-size: 15px; color: var(--text-main); }
+  .token-info .bal { font-size: 13px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  /* --- MODAL POPUP --- */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.25s ease;
+  }
+  .modal-overlay.active { opacity: 1; visibility: visible; }
+  .modal {
+    background: var(--bg-surface-solid); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; width: 90%; max-width: 440px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.8);
+    transform: translateY(20px) scale(0.95); transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .modal-overlay.active .modal { transform: translateY(0) scale(1); }
+  
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .modal-header h3 { font-size: 18px; font-weight: 600; }
+  .modal-close {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--text-muted); cursor: pointer; font-size: 18px;
+    width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { color: var(--text-main); background: rgba(255,255,255,0.1); border-color: var(--border-hover); }
+
+  /* Forms & Inputs */
+  .form-group { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+  .input-wrapper { position: relative; display: flex; flex-direction: column; gap: 8px; }
+  .input-wrapper label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+  input, select {
+    background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);
+    font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    padding: 14px 16px; border-radius: 8px; outline: none; transition: border 0.2s, background 0.2s; width: 100%;
+  }
+  input:focus, select:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); box-shadow: 0 0 0 1px var(--accent); }
+  input::placeholder { color: #52525b; font-family: 'Inter', sans-serif; }
+
+  /* Key-Value Results */
+  .result-kv { background: var(--bg-input); border-radius: 8px; padding: 16px; margin-top: 20px; border: 1px solid var(--border); display: grid; gap: 8px; }
+  .result-kv dt { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .result-kv dd { font-size: 16px; font-weight: 500; font-family: 'JetBrains Mono', monospace; color: var(--accent); word-break: break-all;}
+  
+  .mono-link { font-family: 'JetBrains Mono', monospace; color: var(--text-main); text-decoration: none; border-bottom: 1px dashed var(--border); transition: color 0.2s; }
+  .mono-link:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Toasts */
+  .toaster { position: fixed; bottom: 32px; right: 32px; display: flex; flex-direction: column; gap: 12px; z-index: 1100; }
+  .toast {
+    background: var(--bg-surface-solid); border: 1px solid var(--border); padding: 16px 20px; border-radius: 12px; font-size: 13px; font-weight: 500;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.6); animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; gap: 12px;
+  }
+  .toast.success { border-left: 4px solid var(--success); }
+  .toast.err { border-left: 4px solid var(--danger); }
+  .toast a { color: var(--accent); text-decoration: none; font-weight: 600; margin-left: auto; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  footer { padding: 24px 32px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: auto; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand" onclick="switchView('home-view')">
+    <div class="logo-icon">⌂</div>
+    <div class="brand-text">FractionHome</div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link active" data-target="home-view" onclick="switchView('home-view')">Home</a>
+    <a class="nav-link" data-target="app-view" onclick="switchView('app-view')">Launch App</a>
+  </div>
+  <div class="wallet-ctrl">
+    <span id="netBadge" class="badge">Not connected</span>
+    <button id="connectBtn" class="btn primary" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4H6a2 2 0 0 1-2-2z"/></svg>
+      Connect Wallet
+    </button>
+  </div>
+</nav>
+
+<!-- LANDING PAGE VIEW -->
+<main id="home-view" class="page-view active">
+  <section class="hero">
+    <h1>Own a Slice of <span>Premium Real Estate</span>.</h1>
+    <p>FractionHome allows you to buy fractional shares of real-world properties using stablecoins on BOT Chain. When the property owner deposits rent, every shareholder claims their pro-rata yield instantly on-chain.</p>
+    <div class="hero-btns">
+      <button class="btn primary" onclick="switchView('app-view')">Launch Application</button>
+      <button class="btn" onclick="window.open('https://botchain.ai', '_blank')">Learn about BOT Chain</button>
+    </div>
+  </section>
+  
+  <section class="features">
+    <div class="feature-card">
+      <h3>🪙 Fractional Shares</h3>
+      <p>Purchase property shares for as little as $10. Trade them peer-to-peer at any time securely via our smart contract infrastructure.</p>
+    </div>
+    <div class="feature-card">
+      <h3>💸 Passive Yield</h3>
+      <p>Property managers deposit rent directly to the contract. Connect your wallet and withdraw your exact pro-rata share instantly.</p>
+    </div>
+    <div class="feature-card">
+      <h3>🔗 Immutable Proof</h3>
+      <p>Built natively on BOT Chain Testnet. Asset ownership is cryptographically secured with absolute zero counterparty risk.</p>
+    </div>
+  </section>
+</main>
+
+<!-- APP DASHBOARD VIEW -->
+<main id="app-view" class="page-view">
+  <!-- Data Density Stats Header -->
+  <section class="stats-header" id="stats"></section>
+  
+  <div>
+    <div class="section-title">Transact & Modify</div>
+    <section class="action-grid" id="actions"></section>
+  </div>
+
+  <div>
+    <div class="section-title">Query Protocol State</div>
+    <section class="action-grid" id="views"></section>
+  </div>
+  
+  <div id="tokens-container" style="display: none;">
+    <div class="section-title">Testnet Faucet</div>
+    <section id="tokens"></section>
+  </div>
+</main>
+
+<!-- Generic Modal Popup -->
+<div id="actionModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Action</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toaster" id="status" role="status" aria-live="polite"></div>
+
+<footer>
+  <span>BOT Chain Testnet (968)</span>
+  <span>FractionHome Protocol</span>
+</footer>
+
+<!-- Ethers v6 CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.10.0/ethers.umd.min.js"></script>
+
+<script>
+// --- UI ROUTING LOGIC ---
+function switchView(viewId) {
+  document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+  
+  document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+  document.querySelector(`.nav-link[data-target="${viewId}"]`).classList.add('active');
+}
+
+// --- CONFIGURATION ---
+window.APP_CONFIG = {
+  "address": "0x0000000000000000000000000000000000000000",
+  "slug": "fractionhome",
+  "name": "FractionHome",
+  "tokens": ["payToken"],
+  "stats": [
+    { "label": "Property Asset", "fn": "propertyName", "fmt": "raw" },
+    { "label": "Total Supply", "fn": "totalShares", "fmt": "raw" },
+    { "label": "Shares Sold", "fn": "sold", "fmt": "raw" },
+    { "label": "Price/Share", "fn": "pricePerShare", "fmt": "token" },
+    { "label": "Your Holding", "fn": "shares", "fmt": "raw", "args": ["me"] },
+    { "label": "Claimable Rent", "fn": "pendingRent", "fmt": "token", "args": ["me"] }
+  ],
+  "actions": [
+    { "title": "Buy Shares", "fn": "buyShares", "desc": "Purchase fractional shares of the property using stablecoins.", "inputs": [{ "id": "count", "label": "Amount of Shares", "type": "uint", "default": "10" }] },
+    { "title": "Claim Yield", "fn": "claimRent", "desc": "Withdraw your accrued pro-rata rent earnings to your wallet.", "inputs": [] },
+    { "title": "Transfer Shares", "fn": "transferShares", "desc": "Send shares P2P to another wallet address.", "inputs": [{ "id": "to", "label": "Recipient Address", "type": "address", "meDefault": false, "placeholder": "0x..." }, { "id": "count", "label": "Amount", "type": "uint", "default": "1" }] },
+    { "title": "Deposit Rent (Admin)", "fn": "depositRent", "desc": "Distribute stablecoin yield to all current shareholders.", "inputs": [{ "id": "amount", "label": "Stablecoin Amount", "type": "amount", "default": "400" }] }
+  ],
+  "views": [
+    { "title": "Check Pending Rent", "fn": "pendingRent", "desc": "Check claimable rent for any specific address.", "inputs": [{ "id": "a", "label": "Wallet Address", "type": "address", "meDefault": true, "placeholder": "Leave blank for your address" }] }
+  ]
+};
+
+// --- ARTIFACTS / ABIs ---
+window.ARTIFACTS = {
+  main: {
+    abi: [
+      "function buyShares(uint256 count)",
+      "function claimRent()",
+      "function depositRent(uint256 amount)",
+      "function transferShares(address to, uint256 count)",
+      "function pendingRent(address u) view returns (uint256)",
+      "function propertyName() view returns (string)",
+      "function totalShares() view returns (uint256)",
+      "function sold() view returns (uint256)",
+      "function pricePerShare() view returns (uint256)",
+      "function shares(address) view returns (uint256)",
+      "function payToken() view returns (address)"
+    ]
+  },
+  token: {
+    abi: [
+      "function faucet()",
+      "function symbol() view returns (string)",
+      "function balanceOf(address) view returns (uint256)",
+      "function allowance(address, address) view returns (uint256)",
+      "function approve(address, uint256) returns (bool)"
+    ]
+  }
+};
+
+// --- CORE APP LOGIC ---
+(function () {
+  "use strict";
+  var ethers = window.ethers, C = window.APP_CONFIG, A = window.ARTIFACTS;
+  var CHAIN = { id: 968, hex: "0x3c8", name: "BOT Chain Testnet", rpc: "https://rpc.bohr.life", explorer: "https://scan.botchain.ai", currency: { name: "BOT", symbol: "BOT", decimals: 18 } };
+  var KEY = "botchain968:" + C.slug;
+  var $ = function (s) { return document.querySelector(s); };
+  var account = null, signer = null, mainAddr = "";
+  
+  try { mainAddr = localStorage.getItem(KEY) || ""; } catch (e) {}
+  if (!mainAddr) mainAddr = C.address || "";
+  var readProvider = new ethers.JsonRpcProvider(CHAIN.rpc, CHAIN.id, { staticNetwork: ethers.Network.from(CHAIN.id) });
+
+  function h(tag, attrs) {
+    var n = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      if (k === "class") n.className = attrs[k];
+      else if (k === "text") n.textContent = attrs[k];
+      else if (k.slice(0, 2) === "on") n.addEventListener(k.slice(2), attrs[k]);
+      else n.setAttribute(k, attrs[k]);
+    });
+    for (var i = 2; i < arguments.length; i++) { var c = arguments[i]; if (c == null) continue; n.appendChild(typeof c === "string" ? document.createTextNode(c) : c); }
+    return n;
+  }
+  
+  var short = function (a) { return a.slice(0, 6) + "…" + a.slice(-4); };
+  
+  function units(v) {
+    var s = ethers.formatUnits(v, 18).split("."), d = (s[1] || "").slice(0, 4).replace(/0+$/, "");
+    return BigInt(s[0]).toLocaleString("en-US") + (d ? "." + d : "");
+  }
+  
+  function fmt(kind, v) {
+    if (v === undefined || v === null) return "—";
+    if (kind === "token") return units(v);
+    return String(v);
+  }
+
+  function toast(msg, opts) {
+    opts = opts || {};
+    var box = $("#status"), d = h("div", { class: "toast " + (opts.err ? "err" : (opts.hash ? "success" : "")) }, msg);
+    if (opts.hash) { d.appendChild(h("a", { href: CHAIN.explorer + "/tx/" + opts.hash, target: "_blank", rel: "noopener", text: "Tx ↗" })); }
+    box.appendChild(d);
+    while (box.children.length > 3) box.removeChild(box.firstChild);
+    if (!opts.sticky) setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, opts.err ? 7000 : 4000);
+    return d;
+  }
+  var errText = function (e) { return (e && (e.shortMessage || e.reason || (e.info && e.info.error && e.info.error.message) || e.message)) || String(e); };
+
+  async function switchChain(quiet) {
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN.hex }] });
+    } catch (e) {
+      if (e && (e.code === 4902 || e.code === -32603)) {
+        try {
+          await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{ chainId: CHAIN.hex, chainName: CHAIN.name, nativeCurrency: CHAIN.currency, rpcUrls: [CHAIN.rpc], blockExplorerUrls: [CHAIN.explorer] }] });
+        } catch (e2) { if (!quiet) throw e2; }
+      } else { if (!quiet) throw e; }
+    }
+  }
+
+  async function connect(quiet) {
+    if (!window.ethereum) {
+      if (!quiet) throw new Error("No wallet found.");
+      return;
+    }
+    try {
+      var accounts = await window.ethereum.request({ method: quiet ? "eth_accounts" : "eth_requestAccounts" });
+      if (!accounts || !accounts.length) return;
+      await switchChain(quiet);
+      signer  = await new ethers.BrowserProvider(window.ethereum).getSigner();
+      account = await signer.getAddress();
+      await refreshBadge();
+      await refreshAll();
+      
+      // Auto-route to app view if manually connected from the home screen
+      if(!quiet && document.getElementById('home-view').classList.contains('active')) {
+        switchView('app-view');
+      }
+    } catch (e) { if (!quiet) throw e; }
+  }
+
+  async function refreshBadge() {
+    var b = $("#netBadge"), btn = $("#connectBtn");
+    if (!account) { b.textContent = "Offline"; b.className = "badge"; btn.innerHTML = "<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4'/><path d='M4 6v12c0 1.1.9 2 2 2h14v-4H6a2 2 0 0 1-2-2z'/></svg> Connect Wallet"; return; }
+    var id = parseInt(await window.ethereum.request({ method: "eth_chainId" }), 16);
+    btn.textContent = short(account);
+    if (id === CHAIN.id) { b.textContent = "BOT Chain"; b.className = "badge ok"; }
+    else { b.textContent = "Wrong Net"; b.className = "badge bad"; }
+  }
+
+  function runner() { return signer || readProvider; }
+  function mainC() { return new ethers.Contract(mainAddr, A.main.abi, runner()); }
+  function tokenC(addr) { return new ethers.Contract(addr, A.token.abi, runner()); }
+
+  async function send(label, call) {
+    if (!signer) await connect(false);
+    var t = toast(label + ": Sign tx...", { sticky: true });
+    try {
+      var tx = await call();
+      t.remove();
+      var p = toast(label + ": Processing...", { sticky: true, hash: tx.hash });
+      await tx.wait();
+      p.remove();
+      toast(label + " Success", { hash: tx.hash });
+      await refreshAll();
+    } catch (e) { t.remove(); toast(label + " Failed: " + errText(e), { err: true }); }
+  }
+
+  function field(inp) {
+    var id = "f_" + inp.id;
+    var ctl = h("input", { id: id, autocomplete: "off", inputmode: (inp.type === "amount" || inp.type === "uint") ? "decimal" : "text", placeholder: inp.placeholder || "", value: inp.default != null ? inp.default : "" });
+    return h("div", { class: "input-wrapper" }, h("label", {}, inp.label), ctl);
+  }
+
+  function parse(inp, form) {
+    var el = form.querySelector("#f_" + inp.id), v = (el.value || "").trim();
+    if (v === "" && !(inp.type === "address" && inp.meDefault)) throw new Error(inp.label + " required");
+    switch (inp.type) {
+      case "amount": return ethers.parseUnits(v, 18);
+      case "uint": return BigInt(v);
+      case "address":
+        if (v === "" || v.toLowerCase() === "me") { if (!account) throw new Error("Connect wallet"); return account; }
+        return v;
+      default: return v;
+    }
+  }
+
+  // MODAL LOGIC
+  window.closeModal = function() {
+    $("#actionModal").classList.remove("active");
+  };
+
+  $("#actionModal").addEventListener("mousedown", function(e) {
+    if(e.target === this) closeModal(); // close when clicking background overlay
+  });
+
+  function openActionModal(a, isQuery) {
+    $("#modalTitle").textContent = a.title;
+    var body = $("#modalBody"); body.innerHTML = "";
+    
+    var form = h("form", {});
+    if (a.desc) form.appendChild(h("p", { class: "desc", text: a.desc, style: "color: var(--text-muted); font-size: 13px; margin-bottom: 24px; line-height: 1.5;" }));
+    
+    var row = h("div", { class: "form-group" });
+    (a.inputs || []).forEach(function (i) { row.appendChild(field(i)); });
+    form.appendChild(row);
+    
+    var btn = h("button", { class: "btn primary full", type: "submit", text: isQuery ? "Query Protocol" : "Confirm Transaction" });
+    form.appendChild(btn);
+    
+    var out = h("div"); 
+    form.appendChild(out);
+
+    form.addEventListener("submit", async function (ev) {
+      ev.preventDefault(); btn.disabled = true; out.innerHTML = "";
+      try {
+        var args = (a.inputs || []).map(function (i) { return parse(i, form); });
+        if (!mainAddr || mainAddr.startsWith("0x000")) throw new Error("Configure APP_CONFIG.address in source.");
+        
+        if(isQuery) {
+          var res = await mainC()[a.fn].apply(null, args);
+          var dl = h("dl", { class: "result-kv" });
+          dl.appendChild(h("dt", { text: "Result:" })); 
+          dl.appendChild(h("dd", { text: typeof res === "bigint" ? units(res) : String(res) }));
+          out.appendChild(dl);
+        } else {
+          await send(a.title, function () { return mainC()[a.fn].apply(null, args); });
+          closeModal();
+        }
+      } catch (e) { 
+        if(isQuery) {
+          out.appendChild(h("p", { style: "margin-top:16px; color:var(--danger); font-size: 13px;", text: errText(e) }));
+        } else {
+          toast(errText(e), { err: true }); 
+        }
+      }
+      btn.disabled = false;
+    });
+    
+    body.appendChild(form);
+    $("#actionModal").classList.add("active");
+  }
+
+  function renderActions() {
+    var box = $("#actions"); box.innerHTML = "";
+    (C.actions || []).forEach(function (a) {
+      var tile = h("div", { class: "action-tile", onclick: function() { openActionModal(a, false); } }, 
+        h("h3", { text: a.title }), 
+        a.desc ? h("div", { class: "desc", text: a.desc }) : null
+      );
+      box.appendChild(tile);
+    });
+  }
+
+  function renderViews() {
+    var box = $("#views"); box.innerHTML = "";
+    (C.views || []).forEach(function (v) {
+      var tile = h("div", { class: "action-tile", onclick: function() { openActionModal(v, true); } }, 
+        h("h3", { text: v.title }), 
+        v.desc ? h("div", { class: "desc", text: v.desc }) : null
+      );
+      box.appendChild(tile);
+    });
+  }
+
+  async function renderStats() {
+    var box = $("#stats"); box.innerHTML = "";
+    if (!mainAddr || mainAddr.startsWith("0x000")) return;
+    var c = mainC();
+    await Promise.all((C.stats || []).map(async function (s) {
+      var cell = h("div", { class: "metric-card" }, h("div", { class: "label", text: s.label }), h("div", { class: "value", text: "..." }));
+      box.appendChild(cell);
+      try {
+        if ((s.args || []).indexOf("me") > -1 && !account) { cell.lastChild.textContent = "-"; return; }
+        var res = await c[s.fn].apply(null, (s.args || []).map(function (x) { return x === "me" ? account : x; }));
+        cell.lastChild.textContent = fmt(s.fmt, res);
+      } catch (e) { cell.lastChild.textContent = "N/A"; }
+    }));
+  }
+
+  async function renderTokens() {
+    var box = $("#tokens"); box.innerHTML = "";
+    if (!mainAddr || mainAddr.startsWith("0x000") || !(C.tokens || []).length) { $("#tokens-container").style.display = "none"; return; }
+    $("#tokens-container").style.display = "block";
+    
+    for (var i = 0; i < C.tokens.length; i++) {
+      try {
+        var addr = await mainC()[C.tokens[i]](), t = tokenC(addr), sym = await t.symbol();
+        var bal = account ? await t.balanceOf(account) : null;
+        
+        var row = h("div", { class: "token-row" }, 
+          h("div", { class: "token-info" }, 
+            h("span", { class: "sym", text: sym + " Faucet" }),
+            h("span", { class: "bal", text: account ? "Bal: " + units(bal) : "Connect wallet to view" })
+          )
+        );
+        var btnGroup = h("div", { class: "btn-group" });
+        (function (t, sym) {
+          btnGroup.appendChild(h("button", { class: "btn", type: "button", text: "Mint", onclick: function () { send("Faucet", function () { return t.faucet(); }); } }));
+          btnGroup.appendChild(h("button", { class: "btn", type: "button", text: "Approve Protocol", onclick: function () { send("Approve", function () { return t.approve(mainAddr, ethers.MaxUint256); }); } }));
+        })(t, sym);
+        row.appendChild(btnGroup); box.appendChild(row);
+      } catch (e) { box.appendChild(h("p", { class: "desc", text: "Error loading token." })); }
+    }
+  }
+
+  async function refreshAll() {
+    if (mainAddr && !mainAddr.startsWith("0x000")) {
+      try { if ((await readProvider.getCode(mainAddr)) === "0x") toast("Contract missing on BOT testnet.", { err: true }); } catch (e) {}
+    } else {
+      toast("Update APP_CONFIG.address in source code to interact.", { sticky: true });
+    }
+    await Promise.all([renderStats(), renderTokens()]);
+  }
+
+  $("#connectBtn").addEventListener("click", function () { connect(false).catch(function (e) { toast(errText(e), { err: true }); }); });
+
+  if (window.ethereum) {
+    if (window.ethereum.on) {
+      window.ethereum.on("accountsChanged", function () { signer = null; account = null; refreshBadge(); refreshAll(); });
+      window.ethereum.on("chainChanged", function () { window.location.reload(); });
+    }
+    connect(true).catch(function () {});
+  }
+
+  renderActions(); renderViews(); refreshAll();
+})();
+</script>
+</body>
+</html>
